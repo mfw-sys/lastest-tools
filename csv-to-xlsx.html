@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>CSV to XLSX Converter</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --navy:#093C5D;
+    --blue:#3B7597;
+    --teal:#6FD1D7;
+    --mint:#5DF8D8;
+    --bg:#F4FAFA;
+    --card:#FFFFFF;
+    --border:#DCEAEA;
+    --text:#0E2A3A;
+    --muted:#5B7A88;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Raleway',sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+  }
+  .wrap{
+    max-width:1000px;
+    margin:0 auto;
+    padding:32px 20px 60px;
+  }
+  header{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:28px;
+  }
+  header .icon{
+    width:48px;height:48px;
+    background:var(--navy);
+    border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--mint);
+    font-size:20px;
+    flex-shrink:0;
+  }
+  header h1{
+    font-size:22px;
+    font-weight:700;
+    margin:0;
+    color:var(--navy);
+  }
+  header p{
+    margin:2px 0 0;
+    font-size:13.5px;
+    color:var(--muted);
+  }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:24px;
+    margin-bottom:20px;
+  }
+
+  #dropzone{
+    border:2px dashed var(--teal);
+    border-radius:14px;
+    padding:40px 20px;
+    text-align:center;
+    cursor:pointer;
+    transition:.15s;
+    background:#F9FEFE;
+  }
+  #dropzone:hover, #dropzone.drag{
+    background:#EBFBFA;
+    border-color:var(--blue);
+  }
+  #dropzone i{
+    font-size:34px;
+    color:var(--blue);
+    margin-bottom:10px;
+    display:block;
+  }
+  #dropzone .title{
+    font-weight:600;
+    font-size:15px;
+    color:var(--navy);
+  }
+  #dropzone .sub{
+    font-size:13px;
+    color:var(--muted);
+    margin-top:4px;
+  }
+  #fileInput{display:none;}
+
+  .toolbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:16px;
+    flex-wrap:wrap;
+  }
+  .filemeta{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:13.5px;
+    color:var(--muted);
+  }
+  .filemeta b{color:var(--navy);}
+  .btn{
+    font-family:'Raleway',sans-serif;
+    border:none;
+    border-radius:10px;
+    padding:10px 16px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    transition:.15s;
+  }
+  .btn-primary{
+    background:var(--navy);
+    color:#fff;
+  }
+  .btn-primary:hover{background:#0c4c76;}
+  .btn-secondary{
+    background:#fff;
+    color:var(--navy);
+    border:1px solid var(--border);
+  }
+  .btn-secondary:hover{border-color:var(--blue); color:var(--blue);}
+  .btn-teal{
+    background:var(--teal);
+    color:var(--navy);
+  }
+  .btn-teal:hover{background:var(--mint);}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+  .btn-sm{padding:6px 10px;font-size:12.5px;border-radius:8px;}
+
+  .table-scroll{
+    overflow-x:auto;
+    border:1px solid var(--border);
+    border-radius:12px;
+  }
+  table{
+    border-collapse:collapse;
+    width:100%;
+    font-size:13.5px;
+    min-width:600px;
+  }
+  thead th{
+    background:var(--navy);
+    color:#fff;
+    font-weight:600;
+    padding:10px 12px;
+    text-align:left;
+    white-space:nowrap;
+    position:sticky;
+    top:0;
+  }
+  thead th.col-drag, thead th.col-del{
+    width:40px;
+    text-align:center;
+  }
+  tbody tr{
+    border-top:1px solid var(--border);
+  }
+  tbody tr:nth-child(even){background:#F9FCFC;}
+  tbody tr.dragging{opacity:.4;}
+  tbody tr.drop-target{border-top:2px solid var(--blue);}
+  td{
+    padding:0;
+    border-right:1px solid var(--border);
+  }
+  td.drag-handle{
+    text-align:center;
+    color:var(--muted);
+    cursor:grab;
+    width:40px;
+    background:#fff;
+  }
+  td.drag-handle:active{cursor:grabbing;}
+  td.del-cell{
+    text-align:center;
+    width:40px;
+  }
+  td.del-cell button{
+    background:none;
+    border:none;
+    color:#c85a5a;
+    cursor:pointer;
+    font-size:14px;
+    padding:8px;
+  }
+  td.del-cell button:hover{color:#a33d3d;}
+  td .cell{
+    padding:9px 12px;
+    outline:none;
+    min-width:90px;
+    white-space:nowrap;
+  }
+  td .cell:focus{
+    background:#EAF7F6;
+    box-shadow:inset 0 0 0 1.5px var(--teal);
+  }
+
+  .empty{
+    text-align:center;
+    padding:40px 20px;
+    color:var(--muted);
+    font-size:13.5px;
+  }
+  .empty i{font-size:26px;color:var(--teal);display:block;margin-bottom:8px;}
+
+  .footerbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:16px;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .rowcount{
+    font-size:13px;
+    color:var(--muted);
+  }
+  .status{
+    font-size:13px;
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .status.ok{color:#1f8b6f;}
+  .status i{font-size:14px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="icon"><i class="fa-solid fa-file-csv"></i></div>
+    <div>
+      <h1>CSV ke XLSX Converter</h1>
+      <p>Upload CSV, edit datanya, lalu unduh sebagai file Excel (.xlsx)</p>
+    </div>
+  </header>
+
+  <div class="card">
+    <div id="dropzone">
+      <i class="fa-solid fa-cloud-arrow-up"></i>
+      <div class="title">Klik atau seret file CSV ke sini</div>
+      <div class="sub">Mendukung file .csv</div>
+      <input type="file" id="fileInput" accept=".csv,text/csv">
+    </div>
+  </div>
+
+  <div class="card" id="editorCard" style="display:none;">
+    <div class="toolbar">
+      <div class="filemeta">
+        <i class="fa-regular fa-file-lines"></i>
+        <span><b id="fileName">-</b></span>
+        <span id="fileStats"></span>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-secondary btn-sm" id="addRowBtn"><i class="fa-solid fa-plus"></i> Tambah baris</button>
+        <button class="btn btn-secondary btn-sm" id="resetBtn"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+      </div>
+    </div>
+
+    <div class="table-scroll">
+      <table id="dataTable">
+        <thead><tr></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="footerbar">
+      <div class="rowcount" id="rowCount"></div>
+      <div style="display:flex; align-items:center; gap:14px;">
+        <span class="status ok" id="statusMsg" style="display:none;"><i class="fa-solid fa-circle-check"></i> Siap diunduh</span>
+        <button class="btn btn-primary" id="processBtn"><i class="fa-solid fa-gear"></i> Process &amp; Download XLSX</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let headers = [];
+let rows = [];
+let fileBaseName = 'data';
+let dragSrcIndex = null;
+
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+const editorCard = document.getElementById('editorCard');
+const table = document.getElementById('dataTable');
+const thead = table.querySelector('thead tr');
+const tbody = table.querySelector('tbody');
+const fileNameEl = document.getElementById('fileName');
+const fileStatsEl = document.getElementById('fileStats');
+const rowCountEl = document.getElementById('rowCount');
+const statusMsg = document.getElementById('statusMsg');
+
+dropzone.addEventListener('click', () => fileInput.click());
+dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag'); });
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag'));
+dropzone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropzone.classList.remove('drag');
+  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e => {
+  if (e.target.files.length) handleFile(e.target.files[0]);
+});
+
+function handleFile(file){
+  fileBaseName = file.name.replace(/\.csv$/i, '') || 'data';
+  const reader = new FileReader();
+  reader.onload = e => {
+    parseCSV(e.target.result);
+    renderTable();
+    editorCard.style.display = 'block';
+    fileNameEl.textContent = file.name;
+    statusMsg.style.display = 'none';
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function parseCSV(text){
+  text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  const lines = [];
+  let field = '', row = [], inQuotes = false;
+  for (let i = 0; i < text.length; i++){
+    const c = text[i];
+    if (inQuotes){
+      if (c === '"'){
+        if (text[i+1] === '"'){ field += '"'; i++; }
+        else inQuotes = false;
+      } else field += c;
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ','){ row.push(field); field = ''; }
+      else if (c === '\n'){ row.push(field); lines.push(row); row = []; field = ''; }
+      else field += c;
+    }
+  }
+  if (field.length || row.length){ row.push(field); lines.push(row); }
+  const filtered = lines.filter(r => !(r.length === 1 && r[0] === ''));
+  headers = (filtered[0] || []).map(h => h.trim());
+  rows = filtered.slice(1);
+  const width = headers.length;
+  rows = rows.map(r => {
+    const copy = r.slice(0, width);
+    while (copy.length < width) copy.push('');
+    return copy;
+  });
+}
+
+function renderTable(){
+  thead.innerHTML = '<th class="col-drag"></th>' +
+    headers.map(h => `<th>${escapeHtml(h)}</th>`).join('') +
+    '<th class="col-del"></th>';
+
+  tbody.innerHTML = '';
+  if (rows.length === 0){
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td colspan="${headers.length + 2}"><div class="empty"><i class="fa-regular fa-folder-open"></i>Belum ada baris data</div></td>`;
+    tbody.appendChild(tr);
+  } else {
+    rows.forEach((r, i) => tbody.appendChild(buildRow(r, i)));
+  }
+  updateFooter();
+}
+
+function buildRow(r, i){
+  const tr = document.createElement('tr');
+  tr.draggable = true;
+  tr.dataset.index = i;
+
+  const dragTd = document.createElement('td');
+  dragTd.className = 'drag-handle';
+  dragTd.innerHTML = '<i class="fa-solid fa-grip-vertical"></i>';
+  tr.appendChild(dragTd);
+
+  r.forEach((val, colIdx) => {
+    const td = document.createElement('td');
+    const div = document.createElement('div');
+    div.className = 'cell';
+    div.contentEditable = 'true';
+    div.textContent = val;
+    div.addEventListener('input', () => {
+      rows[tr.dataset.index][colIdx] = div.textContent;
+    });
+    td.appendChild(div);
+    tr.appendChild(td);
+  });
+
+  const delTd = document.createElement('td');
+  delTd.className = 'del-cell';
+  delTd.innerHTML = '<button title="Hapus baris"><i class="fa-solid fa-trash"></i></button>';
+  delTd.querySelector('button').addEventListener('click', () => {
+    rows.splice(parseInt(tr.dataset.index), 1);
+    renderTable();
+  });
+  tr.appendChild(delTd);
+
+  tr.addEventListener('dragstart', () => {
+    dragSrcIndex = parseInt(tr.dataset.index);
+    tr.classList.add('dragging');
+  });
+  tr.addEventListener('dragend', () => {
+    tr.classList.remove('dragging');
+    document.querySelectorAll('tr.drop-target').forEach(el => el.classList.remove('drop-target'));
+  });
+  tr.addEventListener('dragover', e => {
+    e.preventDefault();
+    tr.classList.add('drop-target');
+  });
+  tr.addEventListener('dragleave', () => tr.classList.remove('drop-target'));
+  tr.addEventListener('drop', e => {
+    e.preventDefault();
+    tr.classList.remove('drop-target');
+    const destIndex = parseInt(tr.dataset.index);
+    if (dragSrcIndex === null || dragSrcIndex === destIndex) return;
+    const moved = rows.splice(dragSrcIndex, 1)[0];
+    rows.splice(destIndex, 0, moved);
+    dragSrcIndex = null;
+    renderTable();
+  });
+
+  return tr;
+}
+
+function updateFooter(){
+  rowCountEl.textContent = `${rows.length} baris \u00b7 ${headers.length} kolom`;
+  fileStatsEl.textContent = `(${rows.length} baris, ${headers.length} kolom)`;
+}
+
+function escapeHtml(s){
+  const div = document.createElement('div');
+  div.textContent = s;
+  return div.innerHTML;
+}
+
+document.getElementById('addRowBtn').addEventListener('click', () => {
+  rows.push(new Array(headers.length).fill(''));
+  renderTable();
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  editorCard.style.display = 'none';
+  headers = [];
+  rows = [];
+  fileInput.value = '';
+});
+
+document.getElementById('processBtn').addEventListener('click', () => {
+  const wsData = [headers, ...rows];
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+  XLSX.writeFile(wb, `${fileBaseName}.xlsx`);
+  statusMsg.style.display = 'inline-flex';
+});
+</script>
+</body>
+</html>

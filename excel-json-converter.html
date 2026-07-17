@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Excel/CSV ke JSON Converter</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --navy:#093C5D;
+    --blue:#3B7597;
+    --teal:#6FD1D7;
+    --mint:#5DF8D8;
+    --bg:#F4FAFA;
+    --card:#FFFFFF;
+    --border:#DCEAEA;
+    --text:#0E2A3A;
+    --muted:#5B7A88;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Raleway',sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+  }
+  .wrap{
+    max-width:1000px;
+    margin:0 auto;
+    padding:32px 20px 60px;
+  }
+  header{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:24px;
+  }
+  header .icon{
+    width:48px;height:48px;
+    background:var(--navy);
+    border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--mint);
+    font-size:20px;
+    flex-shrink:0;
+  }
+  header h1{
+    font-size:22px;
+    font-weight:700;
+    margin:0;
+    color:var(--navy);
+  }
+  header p{
+    margin:2px 0 0;
+    font-size:13.5px;
+    color:var(--muted);
+  }
+
+  .tabs{
+    display:flex;
+    gap:8px;
+    margin-bottom:20px;
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:5px;
+  }
+  .tab{
+    flex:1;
+    text-align:center;
+    padding:11px 14px;
+    border-radius:9px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    transition:.15s;
+  }
+  .tab.active{
+    background:var(--navy);
+    color:#fff;
+  }
+  .tab:not(.active):hover{background:var(--bg);}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:24px;
+    margin-bottom:20px;
+  }
+
+  .dropzone{
+    border:2px dashed var(--teal);
+    border-radius:16px;
+    padding:44px 20px;
+    text-align:center;
+    cursor:pointer;
+    transition:.2s ease;
+    background:linear-gradient(180deg, #F9FEFE 0%, #F2FBFB 100%);
+  }
+  .dropzone:hover{
+    background:#EBFBFA;
+    border-color:var(--blue);
+    transform:translateY(-1px);
+  }
+  .dropzone.drag{
+    background:#E4F8F7;
+    border-color:var(--navy);
+    border-style:solid;
+  }
+  .dropzone .dz-icon{
+    width:60px;
+    height:60px;
+    margin:0 auto 14px;
+    border-radius:50%;
+    background:#E1F5F5;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:.2s ease;
+  }
+  .dropzone:hover .dz-icon{
+    background:var(--teal);
+  }
+  .dropzone i{
+    font-size:24px;
+    color:var(--blue);
+  }
+  .dropzone:hover i{
+    color:var(--navy);
+  }
+  .dropzone .title{
+    font-weight:600;
+    font-size:15.5px;
+    color:var(--navy);
+  }
+  .dropzone .sub{
+    font-size:13px;
+    color:var(--muted);
+    margin-top:5px;
+  }
+  .dropzone .sub code{
+    background:#E1F5F5;
+    color:var(--navy);
+    padding:1px 6px;
+    border-radius:5px;
+    font-size:12px;
+  }
+  .fileinput{display:none;}
+
+  .pastelink{
+    text-align:center;
+    margin-top:12px;
+    font-size:13px;
+  }
+  .pastelink a{
+    color:var(--blue);
+    cursor:pointer;
+    font-weight:600;
+    text-decoration:none;
+  }
+  .pastelink a:hover{color:var(--navy);}
+
+  textarea.pastebox{
+    width:100%;
+    min-height:160px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:12px 14px;
+    font-family:'SFMono-Regular',Consolas,monospace;
+    font-size:13px;
+    resize:vertical;
+    outline:none;
+  }
+  textarea.pastebox:focus{border-color:var(--teal); box-shadow:0 0 0 3px rgba(111,209,215,.25);}
+
+  .toolbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:16px;
+    flex-wrap:wrap;
+  }
+  .filemeta{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:13.5px;
+    color:var(--muted);
+  }
+  .filemeta b{color:var(--navy);}
+  .btn{
+    font-family:'Raleway',sans-serif;
+    border:none;
+    border-radius:10px;
+    padding:10px 16px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    transition:.15s;
+  }
+  .btn-primary{background:var(--navy); color:#fff;}
+  .btn-primary:hover{background:#0c4c76;}
+  .btn-secondary{background:#fff; color:var(--navy); border:1px solid var(--border);}
+  .btn-secondary:hover{border-color:var(--blue); color:var(--blue);}
+  .btn-sm{padding:6px 10px;font-size:12.5px;border-radius:8px;}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+
+  .seg{
+    display:inline-flex;
+    border:1px solid var(--border);
+    border-radius:9px;
+    overflow:hidden;
+  }
+  .seg button{
+    font-family:'Raleway',sans-serif;
+    border:none;
+    background:#fff;
+    color:var(--muted);
+    padding:8px 14px;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .seg button.active{background:var(--teal); color:var(--navy);}
+
+  .table-scroll{
+    overflow-x:auto;
+    border:1px solid var(--border);
+    border-radius:12px;
+  }
+  table{
+    border-collapse:collapse;
+    width:100%;
+    font-size:13.5px;
+    min-width:600px;
+  }
+  thead th{
+    background:var(--navy);
+    color:#fff;
+    font-weight:600;
+    padding:10px 12px;
+    text-align:left;
+    white-space:nowrap;
+  }
+  thead th.col-drag, thead th.col-del{ width:40px; text-align:center; }
+  tbody tr{ border-top:1px solid var(--border); }
+  tbody tr:nth-child(even){background:#F9FCFC;}
+  tbody tr.dragging{opacity:.4;}
+  tbody tr.drop-target{border-top:2px solid var(--blue);}
+  td{ padding:0; border-right:1px solid var(--border); }
+  td.drag-handle{ text-align:center; color:var(--muted); cursor:grab; width:40px; background:#fff; }
+  td.drag-handle:active{cursor:grabbing;}
+  td.del-cell{ text-align:center; width:40px; }
+  td.del-cell button{ background:none; border:none; color:#c85a5a; cursor:pointer; font-size:14px; padding:8px; }
+  td.del-cell button:hover{color:#a33d3d;}
+  td .cell{ padding:9px 12px; outline:none; min-width:90px; white-space:nowrap; }
+  td .cell:focus{ background:#EAF7F6; box-shadow:inset 0 0 0 1.5px var(--teal); }
+
+  .empty{ text-align:center; padding:40px 20px; color:var(--muted); font-size:13.5px; }
+  .empty i{font-size:26px;color:var(--teal);display:block;margin-bottom:8px;}
+
+  .footerbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:16px;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .rowcount{ font-size:13px; color:var(--muted); }
+  .status{ font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px; }
+  .status.ok{color:#1f8b6f;}
+  .status.err{color:#c14545;}
+
+  pre#jsonPreview{
+    background:#0E2A3A;
+    color:#DCEAEA;
+    border-radius:12px;
+    padding:16px 18px;
+    font-size:12.5px;
+    line-height:1.55;
+    overflow:auto;
+    max-height:420px;
+    margin:0;
+  }
+  .hidden{display:none !important;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="icon"><i class="fa-solid fa-arrows-turn-to-dots"></i></div>
+    <div>
+      <h1>Excel/CSV &harr; JSON Converter</h1>
+      <p>Konversi dua arah antara file Excel/CSV dan JSON, dengan preview yang bisa diedit</p>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" id="tabToJson"><i class="fa-solid fa-file-csv"></i> Excel/CSV &rarr; JSON</div>
+    <div class="tab" id="tabToExcel"><i class="fa-solid fa-code"></i> JSON &rarr; Excel/CSV</div>
+  </div>
+
+  <!-- ===== MODE 1: EXCEL/CSV -> JSON ===== -->
+  <div id="modeToJson">
+    <div class="card" id="uploadCardA">
+      <div id="dropzoneA" class="dropzone">
+        <div class="dz-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+        <div class="title">Klik atau seret file .csv / .xlsx ke sini</div>
+        <div class="sub">Mendukung file <code>.csv</code>, <code>.xlsx</code>, <code>.xls</code></div>
+        <input type="file" class="fileinput" id="fileInputA" accept=".csv,.xlsx,.xls,text/csv">
+      </div>
+    </div>
+
+    <div class="card hidden" id="editorCardA">
+      <div class="toolbar">
+        <div class="filemeta">
+          <i class="fa-regular fa-file-lines"></i>
+          <span><b id="fileNameA">-</b></span>
+          <span id="fileStatsA"></span>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-secondary btn-sm" id="addRowBtnA"><i class="fa-solid fa-plus"></i> Tambah baris</button>
+          <button class="btn btn-secondary btn-sm" id="resetBtnA"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+        </div>
+      </div>
+
+      <div class="table-scroll">
+        <table id="dataTableA">
+          <thead><tr></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="footerbar">
+        <div class="rowcount" id="rowCountA"></div>
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div class="seg" id="jsonShapeSeg">
+            <button data-shape="array" class="active">Array objek</button>
+            <button data-shape="pretty">Pretty</button>
+            <button data-shape="minify">Minify</button>
+          </div>
+          <span class="status ok hidden" id="statusMsgA"><i class="fa-solid fa-circle-check"></i> Siap diunduh</span>
+          <button class="btn btn-primary" id="processBtnA"><i class="fa-solid fa-gear"></i> Process &amp; Download JSON</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODE 2: JSON -> EXCEL/CSV ===== -->
+  <div id="modeToExcel" class="hidden">
+    <div class="card" id="uploadCardB">
+      <div id="dropzoneB" class="dropzone">
+        <div class="dz-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+        <div class="title">Klik atau seret file .json ke sini</div>
+        <div class="sub">File harus berupa array objek, mis. <code>[{"nama":"Andi"}]</code></div>
+        <input type="file" class="fileinput" id="fileInputB" accept=".json,application/json">
+      </div>
+      <div class="pastelink"><a id="showPasteLink">atau tempel teks JSON langsung</a></div>
+      <div id="pasteWrap" class="hidden" style="margin-top:12px;">
+        <textarea class="pastebox" id="pasteBox" placeholder='[{"nama": "Andi", "kota": "Jakarta"}]'></textarea>
+        <div style="text-align:right; margin-top:10px;">
+          <button class="btn btn-primary btn-sm" id="parsePasteBtn"><i class="fa-solid fa-arrow-right"></i> Proses teks</button>
+        </div>
+      </div>
+      <div class="status err hidden" id="jsonErrorMsg" style="margin-top:10px;"><i class="fa-solid fa-circle-exclamation"></i> <span></span></div>
+    </div>
+
+    <div class="card hidden" id="editorCardB">
+      <div class="toolbar">
+        <div class="filemeta">
+          <i class="fa-solid fa-code"></i>
+          <span><b id="fileNameB">-</b></span>
+          <span id="fileStatsB"></span>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-secondary btn-sm" id="addRowBtnB"><i class="fa-solid fa-plus"></i> Tambah baris</button>
+          <button class="btn btn-secondary btn-sm" id="resetBtnB"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+        </div>
+      </div>
+
+      <div class="table-scroll">
+        <table id="dataTableB">
+          <thead><tr></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="footerbar">
+        <div class="rowcount" id="rowCountB"></div>
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div class="seg" id="outFormatSeg">
+            <button data-fmt="xlsx" class="active">.xlsx</button>
+            <button data-fmt="csv">.csv</button>
+          </div>
+          <span class="status ok hidden" id="statusMsgB"><i class="fa-solid fa-circle-check"></i> Siap diunduh</span>
+          <button class="btn btn-primary" id="processBtnB"><i class="fa-solid fa-gear"></i> Process &amp; Download</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ---------- shared helpers ---------- */
+function escapeHtml(s){
+  const div = document.createElement('div');
+  div.textContent = s === undefined || s === null ? '' : String(s);
+  return div.innerHTML;
+}
+
+function makeEditableTable(cfg){
+  // cfg: { table, headers, rows, onChange }
+  const thead = cfg.table.querySelector('thead tr');
+  const tbody = cfg.table.querySelector('tbody');
+  let dragSrcIndex = null;
+
+  function render(){
+    thead.innerHTML = '<th class="col-drag"></th>' +
+      cfg.headers.map(h => `<th>${escapeHtml(h)}</th>`).join('') +
+      '<th class="col-del"></th>';
+
+    tbody.innerHTML = '';
+    if (cfg.rows.length === 0){
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td colspan="${cfg.headers.length + 2}"><div class="empty"><i class="fa-regular fa-folder-open"></i>Belum ada baris data</div></td>`;
+      tbody.appendChild(tr);
+    } else {
+      cfg.rows.forEach((r, i) => tbody.appendChild(buildRow(r, i)));
+    }
+    cfg.onChange();
+  }
+
+  function buildRow(r, i){
+    const tr = document.createElement('tr');
+    tr.draggable = true;
+    tr.dataset.index = i;
+
+    const dragTd = document.createElement('td');
+    dragTd.className = 'drag-handle';
+    dragTd.innerHTML = '<i class="fa-solid fa-grip-vertical"></i>';
+    tr.appendChild(dragTd);
+
+    r.forEach((val, colIdx) => {
+      const td = document.createElement('td');
+      const div = document.createElement('div');
+      div.className = 'cell';
+      div.contentEditable = 'true';
+      div.textContent = val === undefined || val === null ? '' : val;
+      div.addEventListener('input', () => {
+        cfg.rows[tr.dataset.index][colIdx] = div.textContent;
+      });
+      td.appendChild(div);
+      tr.appendChild(td);
+    });
+
+    const delTd = document.createElement('td');
+    delTd.className = 'del-cell';
+    delTd.innerHTML = '<button title="Hapus baris"><i class="fa-solid fa-trash"></i></button>';
+    delTd.querySelector('button').addEventListener('click', () => {
+      cfg.rows.splice(parseInt(tr.dataset.index), 1);
+      render();
+    });
+    tr.appendChild(delTd);
+
+    tr.addEventListener('dragstart', () => { dragSrcIndex = parseInt(tr.dataset.index); tr.classList.add('dragging'); });
+    tr.addEventListener('dragend', () => {
+      tr.classList.remove('dragging');
+      document.querySelectorAll('tr.drop-target').forEach(el => el.classList.remove('drop-target'));
+    });
+    tr.addEventListener('dragover', e => { e.preventDefault(); tr.classList.add('drop-target'); });
+    tr.addEventListener('dragleave', () => tr.classList.remove('drop-target'));
+    tr.addEventListener('drop', e => {
+      e.preventDefault();
+      tr.classList.remove('drop-target');
+      const destIndex = parseInt(tr.dataset.index);
+      if (dragSrcIndex === null || dragSrcIndex === destIndex) return;
+      const moved = cfg.rows.splice(dragSrcIndex, 1)[0];
+      cfg.rows.splice(destIndex, 0, moved);
+      dragSrcIndex = null;
+      render();
+    });
+
+    return tr;
+  }
+
+  return { render };
+}
+
+function parseCSVText(text){
+  text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  const lines = [];
+  let field = '', row = [], inQuotes = false;
+  for (let i = 0; i < text.length; i++){
+    const c = text[i];
+    if (inQuotes){
+      if (c === '"'){ if (text[i+1] === '"'){ field += '"'; i++; } else inQuotes = false; }
+      else field += c;
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ','){ row.push(field); field = ''; }
+      else if (c === '\n'){ row.push(field); lines.push(row); row = []; field = ''; }
+      else field += c;
+    }
+  }
+  if (field.length || row.length){ row.push(field); lines.push(row); }
+  const filtered = lines.filter(r => !(r.length === 1 && r[0] === ''));
+  const headers = (filtered[0] || []).map(h => h.trim());
+  let rows = filtered.slice(1);
+  const width = headers.length;
+  rows = rows.map(r => {
+    const copy = r.slice(0, width);
+    while (copy.length < width) copy.push('');
+    return copy;
+  });
+  return { headers, rows };
+}
+
+/* ================= TAB SWITCHING ================= */
+const tabToJson = document.getElementById('tabToJson');
+const tabToExcel = document.getElementById('tabToExcel');
+const modeToJson = document.getElementById('modeToJson');
+const modeToExcel = document.getElementById('modeToExcel');
+
+tabToJson.addEventListener('click', () => {
+  tabToJson.classList.add('active'); tabToExcel.classList.remove('active');
+  modeToJson.classList.remove('hidden'); modeToExcel.classList.add('hidden');
+});
+tabToExcel.addEventListener('click', () => {
+  tabToExcel.classList.add('active'); tabToJson.classList.remove('active');
+  modeToExcel.classList.remove('hidden'); modeToJson.classList.add('hidden');
+});
+
+/* ================= MODE A: Excel/CSV -> JSON ================= */
+let A = { headers: [], rows: [], fileBaseName: 'data' };
+const tableA = makeEditableTable({
+  table: document.getElementById('dataTableA'),
+  headers: A.headers,
+  rows: A.rows,
+  onChange: () => {
+    document.getElementById('rowCountA').textContent = `${A.rows.length} baris \u00b7 ${A.headers.length} kolom`;
+    document.getElementById('fileStatsA').textContent = `(${A.rows.length} baris, ${A.headers.length} kolom)`;
+  }
+});
+
+const dropzoneA = document.getElementById('dropzoneA');
+const fileInputA = document.getElementById('fileInputA');
+dropzoneA.addEventListener('click', () => fileInputA.click());
+dropzoneA.addEventListener('dragover', e => { e.preventDefault(); dropzoneA.classList.add('drag'); });
+dropzoneA.addEventListener('dragleave', () => dropzoneA.classList.remove('drag'));
+dropzoneA.addEventListener('drop', e => {
+  e.preventDefault(); dropzoneA.classList.remove('drag');
+  if (e.dataTransfer.files.length) handleFileA(e.dataTransfer.files[0]);
+});
+fileInputA.addEventListener('change', e => { if (e.target.files.length) handleFileA(e.target.files[0]); });
+
+function handleFileA(file){
+  A.fileBaseName = file.name.replace(/\.(csv|xlsx|xls)$/i, '') || 'data';
+  const isCSV = /\.csv$/i.test(file.name);
+  const reader = new FileReader();
+  reader.onload = e => {
+    let headers = [], rows = [];
+    if (isCSV){
+      const parsed = parseCSVText(e.target.result);
+      headers = parsed.headers; rows = parsed.rows;
+    } else {
+      const wb = XLSX.read(e.target.result, { type: 'array' });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const aoa = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, defval: '' });
+      headers = (aoa[0] || []).map(h => String(h).trim());
+      rows = aoa.slice(1).map(r => {
+        const copy = r.slice(0, headers.length);
+        while (copy.length < headers.length) copy.push('');
+        return copy;
+      });
+    }
+    A.headers = headers; A.rows = rows;
+    tableA.render.headers = headers;
+    rebuildTableA();
+    document.getElementById('editorCardA').classList.remove('hidden');
+    document.getElementById('fileNameA').textContent = file.name;
+    document.getElementById('statusMsgA').classList.add('hidden');
+  };
+  if (isCSV) reader.readAsText(file, 'UTF-8'); else reader.readAsArrayBuffer(file);
+}
+
+// rebuild wiring since headers/rows arrays are replaced on new file load
+let tableAInstance;
+function rebuildTableA(){
+  tableAInstance = makeEditableTable({
+    table: document.getElementById('dataTableA'),
+    headers: A.headers,
+    rows: A.rows,
+    onChange: () => {
+      document.getElementById('rowCountA').textContent = `${A.rows.length} baris \u00b7 ${A.headers.length} kolom`;
+      document.getElementById('fileStatsA').textContent = `(${A.rows.length} baris, ${A.headers.length} kolom)`;
+    }
+  });
+  tableAInstance.render();
+}
+
+document.getElementById('addRowBtnA').addEventListener('click', () => {
+  A.rows.push(new Array(A.headers.length).fill(''));
+  tableAInstance.render();
+});
+document.getElementById('resetBtnA').addEventListener('click', () => {
+  document.getElementById('editorCardA').classList.add('hidden');
+  A.headers = []; A.rows = [];
+  fileInputA.value = '';
+});
+
+let jsonShape = 'array';
+document.getElementById('jsonShapeSeg').addEventListener('click', e => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  document.querySelectorAll('#jsonShapeSeg button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  jsonShape = btn.dataset.shape;
+});
+
+document.getElementById('processBtnA').addEventListener('click', () => {
+  const arr = A.rows.map(r => {
+    const obj = {};
+    A.headers.forEach((h, i) => { obj[h] = r[i] === undefined ? '' : r[i]; });
+    return obj;
+  });
+  const jsonStr = jsonShape === 'minify' ? JSON.stringify(arr) : JSON.stringify(arr, null, 2);
+  const blob = new Blob([jsonStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `${A.fileBaseName}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  document.getElementById('statusMsgA').classList.remove('hidden');
+});
+
+/* ================= MODE B: JSON -> Excel/CSV ================= */
+let B = { headers: [], rows: [], fileBaseName: 'data' };
+let tableBInstance;
+function rebuildTableB(){
+  tableBInstance = makeEditableTable({
+    table: document.getElementById('dataTableB'),
+    headers: B.headers,
+    rows: B.rows,
+    onChange: () => {
+      document.getElementById('rowCountB').textContent = `${B.rows.length} baris \u00b7 ${B.headers.length} kolom`;
+      document.getElementById('fileStatsB').textContent = `(${B.rows.length} baris, ${B.headers.length} kolom)`;
+    }
+  });
+  tableBInstance.render();
+}
+
+function flattenValue(v){
+  if (v === null || v === undefined) return '';
+  if (typeof v === 'object') return JSON.stringify(v);
+  return v;
+}
+
+function jsonArrayToTable(arr){
+  if (!Array.isArray(arr)){
+    if (typeof arr === 'object' && arr !== null) arr = [arr];
+    else throw new Error('JSON harus berupa array objek atau objek tunggal.');
+  }
+  const headerSet = [];
+  arr.forEach(obj => {
+    if (typeof obj !== 'object' || obj === null) return;
+    Object.keys(obj).forEach(k => { if (!headerSet.includes(k)) headerSet.push(k); });
+  });
+  const rows = arr.map(obj => headerSet.map(h => flattenValue(obj ? obj[h] : '')));
+  return { headers: headerSet, rows };
+}
+
+function showJsonError(msg){
+  const el = document.getElementById('jsonErrorMsg');
+  el.querySelector('span').textContent = msg;
+  el.classList.remove('hidden');
+}
+function hideJsonError(){
+  document.getElementById('jsonErrorMsg').classList.add('hidden');
+}
+
+const dropzoneB = document.getElementById('dropzoneB');
+const fileInputB = document.getElementById('fileInputB');
+dropzoneB.addEventListener('click', () => fileInputB.click());
+dropzoneB.addEventListener('dragover', e => { e.preventDefault(); dropzoneB.classList.add('drag'); });
+dropzoneB.addEventListener('dragleave', () => dropzoneB.classList.remove('drag'));
+dropzoneB.addEventListener('drop', e => {
+  e.preventDefault(); dropzoneB.classList.remove('drag');
+  if (e.dataTransfer.files.length) handleFileB(e.dataTransfer.files[0]);
+});
+fileInputB.addEventListener('change', e => { if (e.target.files.length) handleFileB(e.target.files[0]); });
+
+function handleFileB(file){
+  B.fileBaseName = file.name.replace(/\.json$/i, '') || 'data';
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      const { headers, rows } = jsonArrayToTable(parsed);
+      B.headers = headers; B.rows = rows;
+      rebuildTableB();
+      hideJsonError();
+      document.getElementById('editorCardB').classList.remove('hidden');
+      document.getElementById('fileNameB').textContent = file.name;
+      document.getElementById('statusMsgB').classList.add('hidden');
+    } catch (err) {
+      showJsonError('Gagal membaca JSON: ' + err.message);
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+document.getElementById('showPasteLink').addEventListener('click', () => {
+  document.getElementById('pasteWrap').classList.toggle('hidden');
+});
+document.getElementById('parsePasteBtn').addEventListener('click', () => {
+  const text = document.getElementById('pasteBox').value.trim();
+  if (!text) { showJsonError('Tempel teks JSON terlebih dahulu.'); return; }
+  try {
+    const parsed = JSON.parse(text);
+    const { headers, rows } = jsonArrayToTable(parsed);
+    B.headers = headers; B.rows = rows; B.fileBaseName = 'data';
+    rebuildTableB();
+    hideJsonError();
+    document.getElementById('editorCardB').classList.remove('hidden');
+    document.getElementById('fileNameB').textContent = 'teks tempelan';
+    document.getElementById('statusMsgB').classList.add('hidden');
+  } catch (err) {
+    showJsonError('Gagal membaca JSON: ' + err.message);
+  }
+});
+
+document.getElementById('addRowBtnB').addEventListener('click', () => {
+  B.rows.push(new Array(B.headers.length).fill(''));
+  tableBInstance.render();
+});
+document.getElementById('resetBtnB').addEventListener('click', () => {
+  document.getElementById('editorCardB').classList.add('hidden');
+  B.headers = []; B.rows = [];
+  fileInputB.value = '';
+  document.getElementById('pasteBox').value = '';
+});
+
+let outFormat = 'xlsx';
+document.getElementById('outFormatSeg').addEventListener('click', e => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  document.querySelectorAll('#outFormatSeg button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  outFormat = btn.dataset.fmt;
+});
+
+document.getElementById('processBtnB').addEventListener('click', () => {
+  const wsData = [B.headers, ...B.rows];
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+  if (outFormat === 'xlsx'){
+    XLSX.writeFile(wb, `${B.fileBaseName}.xlsx`);
+  } else {
+    XLSX.writeFile(wb, `${B.fileBaseName}.csv`, { bookType: 'csv' });
+  }
+  document.getElementById('statusMsgB').classList.remove('hidden');
+});
+
+// initial renders (empty state)
+rebuildTableA();
+rebuildTableB();
+</script>
+</body>
+</html>

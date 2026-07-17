@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Toolbox</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#093C5D;
+    --blue:#3B7597;
+    --teal:#6FD1D7;
+    --mint:#5DF8D8;
+    --bg:#F4FAFA;
+    --card:#FFFFFF;
+    --border:#DCEAEA;
+    --text:#0E2A3A;
+    --muted:#5B7A88;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Raleway',sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+  }
+  .wrap{
+    max-width:1000px;
+    margin:0 auto;
+    padding:44px 20px 70px;
+  }
+  header{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:12px;
+  }
+  header .icon{
+    width:52px;height:52px;
+    background:var(--navy);
+    border-radius:14px;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--mint);
+    font-size:22px;
+    flex-shrink:0;
+  }
+  header h1{
+    font-size:24px;
+    font-weight:700;
+    margin:0;
+    color:var(--navy);
+  }
+  header p{
+    margin:2px 0 0;
+    font-size:14px;
+    color:var(--muted);
+  }
+
+  .badgebar{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin:20px 0 36px;
+  }
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:999px;
+    padding:7px 14px;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--blue);
+  }
+  .badge i{font-size:12px;}
+
+  .section-title{
+    font-size:13px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    color:var(--muted);
+    margin:0 0 14px;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+    gap:18px;
+  }
+
+  .toolcard{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:22px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    text-decoration:none;
+    color:inherit;
+    transition:.18s ease;
+  }
+  .toolcard:hover{
+    border-color:var(--blue);
+    transform:translateY(-2px);
+    box-shadow:0 8px 20px rgba(9,60,93,0.08);
+  }
+  .toolcard .ticon{
+    width:46px;height:46px;
+    border-radius:12px;
+    background:#E1F5F5;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--navy);
+    font-size:19px;
+    transition:.18s ease;
+  }
+  .toolcard:hover .ticon{
+    background:var(--teal);
+  }
+  .toolcard h3{
+    font-size:16.5px;
+    font-weight:700;
+    margin:0;
+    color:var(--navy);
+  }
+  .toolcard p{
+    font-size:13.5px;
+    color:var(--muted);
+    margin:0;
+    line-height:1.55;
+    flex-grow:1;
+  }
+  .toolcard .tags{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+  }
+  .toolcard .tag{
+    font-size:11px;
+    font-weight:700;
+    color:var(--blue);
+    background:#EAF7F6;
+    padding:3px 9px;
+    border-radius:999px;
+  }
+  .toolcard .openrow{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:13px;
+    font-weight:700;
+    color:var(--navy);
+    margin-top:2px;
+  }
+  .toolcard .openrow i{
+    font-size:12px;
+    transition:.18s ease;
+  }
+  .toolcard:hover .openrow i{
+    transform:translateX(3px);
+  }
+
+  footer{
+    margin-top:50px;
+    text-align:center;
+    font-size:12.5px;
+    color:var(--muted);
+  }
+  footer a{color:var(--blue); text-decoration:none; font-weight:600;}
+  footer a:hover{color:var(--navy);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="icon"><i class="fa-solid fa-toolbox"></i></div>
+    <div>
+      <h1>Toolbox Konversi</h1>
+      <p>Kumpulan tools ringan buat kerja data sehari-hari, langsung di browser</p>
+    </div>
+  </header>
+
+  <div class="badgebar">
+    <span class="badge"><i class="fa-solid fa-lock"></i> 100% di browser</span>
+    <span class="badge"><i class="fa-solid fa-server"></i> Tanpa backend</span>
+    <span class="badge"><i class="fa-solid fa-shield-halved"></i> Data tidak dikirim ke server manapun</span>
+  </div>
+
+  <p class="section-title">Tools</p>
+  <div class="grid">
+
+    <a class="toolcard" href="csv-to-xlsx.html">
+      <div class="ticon"><i class="fa-solid fa-file-csv"></i></div>
+      <h3>CSV to XLSX Converter</h3>
+      <p>Upload CSV, edit datanya langsung di tabel (drag, hapus, ubah sel), lalu unduh sebagai file Excel.</p>
+      <div class="tags"><span class="tag">CSV</span><span class="tag">XLSX</span></div>
+      <div class="openrow">Buka tool <i class="fa-solid fa-arrow-right"></i></div>
+    </a>
+
+    <a class="toolcard" href="excel-json-converter.html">
+      <div class="ticon"><i class="fa-solid fa-arrows-turn-to-dots"></i></div>
+      <h3>Excel/CSV &harr; JSON Converter</h3>
+      <p>Konversi dua arah: Excel/CSV ke JSON, atau JSON (upload/tempel) ke Excel/CSV, dengan preview yang bisa diedit.</p>
+      <div class="tags"><span class="tag">CSV</span><span class="tag">XLSX</span><span class="tag">JSON</span></div>
+      <div class="openrow">Buka tool <i class="fa-solid fa-arrow-right"></i></div>
+    </a>
+
+    <a class="toolcard" href="pdf-table-extractor.html">
+      <div class="ticon"><i class="fa-solid fa-table-cells"></i></div>
+      <h3>PDF Table Extractor</h3>
+      <p>Ambil tabel dari PDF berbasis teks, susun ulang jadi tabel yang bisa diedit, lalu unduh sebagai Excel.</p>
+      <div class="tags"><span class="tag">PDF</span><span class="tag">XLSX</span></div>
+      <div class="openrow">Buka tool <i class="fa-solid fa-arrow-right"></i></div>
+    </a>
+
+  </div>
+
+  <footer>
+    Dibuat untuk kerja data sehari-hari
+  </footer>
+
+</div>
+</body>
+</html>
