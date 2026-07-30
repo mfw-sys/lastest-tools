@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Excel/CSV ke JSON Converter</title>
+<title>Excel/CSV to JSON Converter</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root{
-    --navy:#093C5D;
-    --blue:#3B7597;
-    --teal:#6FD1D7;
-    --mint:#5DF8D8;
-    --bg:#F4FAFA;
+    --navy:#224248;
+    --blue:#325E6A;
+    --teal:#44A1A4;
+    --mint:#FF9A00;
+    --bg:#F1F6F6;
     --card:#FFFFFF;
-    --border:#DCEAEA;
-    --text:#0E2A3A;
-    --muted:#5B7A88;
+    --border:#DCE8E7;
+    --text:#1A3236;
+    --muted:#5C7A7D;
   }
   *{box-sizing:border-box;}
   body{
@@ -104,15 +104,15 @@
     text-align:center;
     cursor:pointer;
     transition:.2s ease;
-    background:linear-gradient(180deg, #F9FEFE 0%, #F2FBFB 100%);
+    background:linear-gradient(180deg, #F5FAFA 0%, #F0F8F7 100%);
   }
   .dropzone:hover{
-    background:#EBFBFA;
+    background:#E9F5F4;
     border-color:var(--blue);
     transform:translateY(-1px);
   }
   .dropzone.drag{
-    background:#E4F8F7;
+    background:#DEF0EE;
     border-color:var(--navy);
     border-style:solid;
   }
@@ -121,7 +121,7 @@
     height:60px;
     margin:0 auto 14px;
     border-radius:50%;
-    background:#E1F5F5;
+    background:#DCEEEC;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -148,7 +148,7 @@
     margin-top:5px;
   }
   .dropzone .sub code{
-    background:#E1F5F5;
+    background:#DCEEEC;
     color:var(--navy);
     padding:1px 6px;
     border-radius:5px;
@@ -180,7 +180,7 @@
     resize:vertical;
     outline:none;
   }
-  textarea.pastebox:focus{border-color:var(--teal); box-shadow:0 0 0 3px rgba(111,209,215,.25);}
+  textarea.pastebox:focus{border-color:var(--teal); box-shadow:0 0 0 3px rgba(68,161,164,.25);}
 
   .toolbar{
     display:flex;
@@ -212,7 +212,7 @@
     transition:.15s;
   }
   .btn-primary{background:var(--navy); color:#fff;}
-  .btn-primary:hover{background:#0c4c76;}
+  .btn-primary:hover{background:#1A3438;}
   .btn-secondary{background:#fff; color:var(--navy); border:1px solid var(--border);}
   .btn-secondary:hover{border-color:var(--blue); color:var(--blue);}
   .btn-sm{padding:6px 10px;font-size:12.5px;border-radius:8px;}
@@ -257,7 +257,7 @@
   }
   thead th.col-drag, thead th.col-del{ width:40px; text-align:center; }
   tbody tr{ border-top:1px solid var(--border); }
-  tbody tr:nth-child(even){background:#F9FCFC;}
+  tbody tr:nth-child(even){background:#F7FAFA;}
   tbody tr.dragging{opacity:.4;}
   tbody tr.drop-target{border-top:2px solid var(--blue);}
   td{ padding:0; border-right:1px solid var(--border); }
@@ -267,7 +267,7 @@
   td.del-cell button{ background:none; border:none; color:#c85a5a; cursor:pointer; font-size:14px; padding:8px; }
   td.del-cell button:hover{color:#a33d3d;}
   td .cell{ padding:9px 12px; outline:none; min-width:90px; white-space:nowrap; }
-  td .cell:focus{ background:#EAF7F6; box-shadow:inset 0 0 0 1.5px var(--teal); }
+  td .cell:focus{ background:#E6F3F2; box-shadow:inset 0 0 0 1.5px var(--teal); }
 
   .empty{ text-align:center; padding:40px 20px; color:var(--muted); font-size:13.5px; }
   .empty i{font-size:26px;color:var(--teal);display:block;margin-bottom:8px;}
@@ -286,8 +286,8 @@
   .status.err{color:#c14545;}
 
   pre#jsonPreview{
-    background:#0E2A3A;
-    color:#DCEAEA;
+    background:#1A3236;
+    color:#DCE8E7;
     border-radius:12px;
     padding:16px 18px;
     font-size:12.5px;
@@ -306,7 +306,7 @@
     <div class="icon"><i class="fa-solid fa-arrows-turn-to-dots"></i></div>
     <div>
       <h1>Excel/CSV &harr; JSON Converter</h1>
-      <p>Konversi dua arah antara file Excel/CSV dan JSON, dengan preview yang bisa diedit</p>
+      <p>Two-way conversion between Excel/CSV files and JSON, with an editable preview</p>
     </div>
   </header>
 
@@ -320,8 +320,8 @@
     <div class="card" id="uploadCardA">
       <div id="dropzoneA" class="dropzone">
         <div class="dz-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-        <div class="title">Klik atau seret file .csv / .xlsx ke sini</div>
-        <div class="sub">Mendukung file <code>.csv</code>, <code>.xlsx</code>, <code>.xls</code></div>
+        <div class="title">Click or drag a .csv / .xlsx file here</div>
+        <div class="sub">Supports <code>.csv</code>, <code>.xlsx</code>, <code>.xls</code> files</div>
         <input type="file" class="fileinput" id="fileInputA" accept=".csv,.xlsx,.xls,text/csv">
       </div>
     </div>
@@ -334,7 +334,7 @@
           <span id="fileStatsA"></span>
         </div>
         <div style="display:flex; gap:8px;">
-          <button class="btn btn-secondary btn-sm" id="addRowBtnA"><i class="fa-solid fa-plus"></i> Tambah baris</button>
+          <button class="btn btn-secondary btn-sm" id="addRowBtnA"><i class="fa-solid fa-plus"></i> Add row</button>
           <button class="btn btn-secondary btn-sm" id="resetBtnA"><i class="fa-solid fa-rotate-left"></i> Reset</button>
         </div>
       </div>
@@ -350,11 +350,11 @@
         <div class="rowcount" id="rowCountA"></div>
         <div style="display:flex; align-items:center; gap:14px;">
           <div class="seg" id="jsonShapeSeg">
-            <button data-shape="array" class="active">Array objek</button>
+            <button data-shape="array" class="active">Object array</button>
             <button data-shape="pretty">Pretty</button>
             <button data-shape="minify">Minify</button>
           </div>
-          <span class="status ok hidden" id="statusMsgA"><i class="fa-solid fa-circle-check"></i> Siap diunduh</span>
+          <span class="status ok hidden" id="statusMsgA"><i class="fa-solid fa-circle-check"></i> Ready to download</span>
           <button class="btn btn-primary" id="processBtnA"><i class="fa-solid fa-gear"></i> Process &amp; Download JSON</button>
         </div>
       </div>
@@ -366,15 +366,15 @@
     <div class="card" id="uploadCardB">
       <div id="dropzoneB" class="dropzone">
         <div class="dz-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-        <div class="title">Klik atau seret file .json ke sini</div>
-        <div class="sub">File harus berupa array objek, mis. <code>[{"nama":"Andi"}]</code></div>
+        <div class="title">Click or drag a .json file here</div>
+        <div class="sub">File must be an array of objects, e.g. <code>[{"name":"Andi"}]</code></div>
         <input type="file" class="fileinput" id="fileInputB" accept=".json,application/json">
       </div>
-      <div class="pastelink"><a id="showPasteLink">atau tempel teks JSON langsung</a></div>
+      <div class="pastelink"><a id="showPasteLink">or paste JSON text directly</a></div>
       <div id="pasteWrap" class="hidden" style="margin-top:12px;">
-        <textarea class="pastebox" id="pasteBox" placeholder='[{"nama": "Andi", "kota": "Jakarta"}]'></textarea>
+        <textarea class="pastebox" id="pasteBox" placeholder='[{"name": "Andi", "city": "Jakarta"}]'></textarea>
         <div style="text-align:right; margin-top:10px;">
-          <button class="btn btn-primary btn-sm" id="parsePasteBtn"><i class="fa-solid fa-arrow-right"></i> Proses teks</button>
+          <button class="btn btn-primary btn-sm" id="parsePasteBtn"><i class="fa-solid fa-arrow-right"></i> Process text</button>
         </div>
       </div>
       <div class="status err hidden" id="jsonErrorMsg" style="margin-top:10px;"><i class="fa-solid fa-circle-exclamation"></i> <span></span></div>
@@ -388,7 +388,7 @@
           <span id="fileStatsB"></span>
         </div>
         <div style="display:flex; gap:8px;">
-          <button class="btn btn-secondary btn-sm" id="addRowBtnB"><i class="fa-solid fa-plus"></i> Tambah baris</button>
+          <button class="btn btn-secondary btn-sm" id="addRowBtnB"><i class="fa-solid fa-plus"></i> Add row</button>
           <button class="btn btn-secondary btn-sm" id="resetBtnB"><i class="fa-solid fa-rotate-left"></i> Reset</button>
         </div>
       </div>
@@ -407,7 +407,7 @@
             <button data-fmt="xlsx" class="active">.xlsx</button>
             <button data-fmt="csv">.csv</button>
           </div>
-          <span class="status ok hidden" id="statusMsgB"><i class="fa-solid fa-circle-check"></i> Siap diunduh</span>
+          <span class="status ok hidden" id="statusMsgB"><i class="fa-solid fa-circle-check"></i> Ready to download</span>
           <button class="btn btn-primary" id="processBtnB"><i class="fa-solid fa-gear"></i> Process &amp; Download</button>
         </div>
       </div>
@@ -438,7 +438,7 @@ function makeEditableTable(cfg){
     tbody.innerHTML = '';
     if (cfg.rows.length === 0){
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td colspan="${cfg.headers.length + 2}"><div class="empty"><i class="fa-regular fa-folder-open"></i>Belum ada baris data</div></td>`;
+      tr.innerHTML = `<td colspan="${cfg.headers.length + 2}"><div class="empty"><i class="fa-regular fa-folder-open"></i>No rows yet</div></td>`;
       tbody.appendChild(tr);
     } else {
       cfg.rows.forEach((r, i) => tbody.appendChild(buildRow(r, i)));
@@ -471,7 +471,7 @@ function makeEditableTable(cfg){
 
     const delTd = document.createElement('td');
     delTd.className = 'del-cell';
-    delTd.innerHTML = '<button title="Hapus baris"><i class="fa-solid fa-trash"></i></button>';
+    delTd.innerHTML = '<button title="Delete row"><i class="fa-solid fa-trash"></i></button>';
     delTd.querySelector('button').addEventListener('click', () => {
       cfg.rows.splice(parseInt(tr.dataset.index), 1);
       render();
@@ -553,8 +553,8 @@ const tableA = makeEditableTable({
   headers: A.headers,
   rows: A.rows,
   onChange: () => {
-    document.getElementById('rowCountA').textContent = `${A.rows.length} baris \u00b7 ${A.headers.length} kolom`;
-    document.getElementById('fileStatsA').textContent = `(${A.rows.length} baris, ${A.headers.length} kolom)`;
+    document.getElementById('rowCountA').textContent = `${A.rows.length} rows \u00b7 ${A.headers.length} columns`;
+    document.getElementById('fileStatsA').textContent = `(${A.rows.length} rows, ${A.headers.length} columns)`;
   }
 });
 
@@ -607,8 +607,8 @@ function rebuildTableA(){
     headers: A.headers,
     rows: A.rows,
     onChange: () => {
-      document.getElementById('rowCountA').textContent = `${A.rows.length} baris \u00b7 ${A.headers.length} kolom`;
-      document.getElementById('fileStatsA').textContent = `(${A.rows.length} baris, ${A.headers.length} kolom)`;
+      document.getElementById('rowCountA').textContent = `${A.rows.length} rows \u00b7 ${A.headers.length} columns`;
+      document.getElementById('fileStatsA').textContent = `(${A.rows.length} rows, ${A.headers.length} columns)`;
     }
   });
   tableAInstance.render();
@@ -658,8 +658,8 @@ function rebuildTableB(){
     headers: B.headers,
     rows: B.rows,
     onChange: () => {
-      document.getElementById('rowCountB').textContent = `${B.rows.length} baris \u00b7 ${B.headers.length} kolom`;
-      document.getElementById('fileStatsB').textContent = `(${B.rows.length} baris, ${B.headers.length} kolom)`;
+      document.getElementById('rowCountB').textContent = `${B.rows.length} rows \u00b7 ${B.headers.length} columns`;
+      document.getElementById('fileStatsB').textContent = `(${B.rows.length} rows, ${B.headers.length} columns)`;
     }
   });
   tableBInstance.render();
@@ -674,7 +674,7 @@ function flattenValue(v){
 function jsonArrayToTable(arr){
   if (!Array.isArray(arr)){
     if (typeof arr === 'object' && arr !== null) arr = [arr];
-    else throw new Error('JSON harus berupa array objek atau objek tunggal.');
+    else throw new Error('JSON must be an array of objects or a single object.');
   }
   const headerSet = [];
   arr.forEach(obj => {
@@ -719,7 +719,7 @@ function handleFileB(file){
       document.getElementById('fileNameB').textContent = file.name;
       document.getElementById('statusMsgB').classList.add('hidden');
     } catch (err) {
-      showJsonError('Gagal membaca JSON: ' + err.message);
+      showJsonError('Failed to read JSON: ' + err.message);
     }
   };
   reader.readAsText(file, 'UTF-8');
@@ -730,7 +730,7 @@ document.getElementById('showPasteLink').addEventListener('click', () => {
 });
 document.getElementById('parsePasteBtn').addEventListener('click', () => {
   const text = document.getElementById('pasteBox').value.trim();
-  if (!text) { showJsonError('Tempel teks JSON terlebih dahulu.'); return; }
+  if (!text) { showJsonError('Paste JSON text first.'); return; }
   try {
     const parsed = JSON.parse(text);
     const { headers, rows } = jsonArrayToTable(parsed);
@@ -738,10 +738,10 @@ document.getElementById('parsePasteBtn').addEventListener('click', () => {
     rebuildTableB();
     hideJsonError();
     document.getElementById('editorCardB').classList.remove('hidden');
-    document.getElementById('fileNameB').textContent = 'teks tempelan';
+    document.getElementById('fileNameB').textContent = 'pasted text';
     document.getElementById('statusMsgB').classList.add('hidden');
   } catch (err) {
-    showJsonError('Gagal membaca JSON: ' + err.message);
+    showJsonError('Failed to read JSON: ' + err.message);
   }
 });
 

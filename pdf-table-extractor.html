@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>PDF Table Extractor</title>
@@ -10,15 +10,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
   :root{
-    --navy:#093C5D;
-    --blue:#3B7597;
-    --teal:#6FD1D7;
-    --mint:#5DF8D8;
-    --bg:#F4FAFA;
+    --navy:#224248;
+    --blue:#325E6A;
+    --teal:#44A1A4;
+    --mint:#FF9A00;
+    --bg:#F1F6F6;
     --card:#FFFFFF;
-    --border:#DCEAEA;
-    --text:#0E2A3A;
-    --muted:#5B7A88;
+    --border:#DCE8E7;
+    --text:#1A3236;
+    --muted:#5C7A7D;
   }
   *{box-sizing:border-box;}
   body{
@@ -72,7 +72,7 @@
     display:flex;
     align-items:flex-start;
     gap:10px;
-    background:#EAF7F6;
+    background:#E6F3F2;
     border:1px solid var(--border);
     border-radius:12px;
     padding:12px 14px;
@@ -89,15 +89,15 @@
     text-align:center;
     cursor:pointer;
     transition:.2s ease;
-    background:linear-gradient(180deg, #F9FEFE 0%, #F2FBFB 100%);
+    background:linear-gradient(180deg, #F5FAFA 0%, #F0F8F7 100%);
   }
   .dropzone:hover{
-    background:#EBFBFA;
+    background:#E9F5F4;
     border-color:var(--blue);
     transform:translateY(-1px);
   }
   .dropzone.drag{
-    background:#E4F8F7;
+    background:#DEF0EE;
     border-color:var(--navy);
     border-style:solid;
   }
@@ -106,7 +106,7 @@
     height:60px;
     margin:0 auto 14px;
     border-radius:50%;
-    background:#E1F5F5;
+    background:#DCEEEC;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -195,7 +195,7 @@
     transition:.15s;
   }
   .btn-primary{background:var(--navy); color:#fff;}
-  .btn-primary:hover{background:#0c4c76;}
+  .btn-primary:hover{background:#1A3438;}
   .btn-secondary{background:#fff; color:var(--navy); border:1px solid var(--border);}
   .btn-secondary:hover{border-color:var(--blue); color:var(--blue);}
   .btn-sm{padding:6px 10px;font-size:12.5px;border-radius:8px;}
@@ -224,7 +224,7 @@
   }
   thead th.col-drag, thead th.col-del{ width:40px; text-align:center; }
   tbody tr{ border-top:1px solid var(--border); }
-  tbody tr:nth-child(even){background:#F9FCFC;}
+  tbody tr:nth-child(even){background:#F7FAFA;}
   tbody tr.dragging{opacity:.4;}
   tbody tr.drop-target{border-top:2px solid var(--blue);}
   td{ padding:0; border-right:1px solid var(--border); }
@@ -234,7 +234,7 @@
   td.del-cell button{ background:none; border:none; color:#c85a5a; cursor:pointer; font-size:14px; padding:8px; }
   td.del-cell button:hover{color:#a33d3d;}
   td .cell{ padding:9px 12px; outline:none; min-width:90px; white-space:nowrap; }
-  td .cell:focus{ background:#EAF7F6; box-shadow:inset 0 0 0 1.5px var(--teal); }
+  td .cell:focus{ background:#E6F3F2; box-shadow:inset 0 0 0 1.5px var(--teal); }
 
   .empty{ text-align:center; padding:40px 20px; color:var(--muted); font-size:13.5px; }
   .empty i{font-size:26px;color:var(--teal);display:block;margin-bottom:8px;}
@@ -267,26 +267,26 @@
     <div class="icon"><i class="fa-solid fa-table-cells"></i></div>
     <div>
       <h1>PDF Table Extractor</h1>
-      <p>Ambil tabel dari file PDF berbasis teks dan ubah jadi Excel/CSV</p>
+      <p>Extract tables from text-based PDF files and turn them into Excel/CSV</p>
     </div>
   </header>
 
   <div class="infobar">
     <i class="fa-solid fa-circle-info"></i>
-    <span>Khusus PDF berbasis teks (bukan hasil scan/foto). Tabel disusun ulang otomatis berdasarkan posisi teks, jadi sesekali perlu disetel manual lewat sensitivitas kolom di bawah.</span>
+    <span>Only works with text-based PDFs (not scans/photos). The table is reconstructed automatically from text position, so occasionally you'll need to fine-tune it manually using the column sensitivity control below.</span>
   </div>
 
   <div class="card" id="uploadCard">
     <div id="dropzone" class="dropzone">
       <div class="dz-icon"><i class="fa-solid fa-file-pdf"></i></div>
-      <div class="title">Klik atau seret file .pdf ke sini</div>
-      <div class="sub">Mendukung file <code>.pdf</code> berbasis teks</div>
+      <div class="title">Click or drag a .pdf file here</div>
+      <div class="sub">Supports text-based <code>.pdf</code> files</div>
       <input type="file" class="fileinput" id="fileInput" accept=".pdf,application/pdf">
     </div>
   </div>
 
   <div class="card hidden" id="loadingCard">
-    <div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Membaca file PDF...</div>
+    <div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Reading the PDF file...</div>
   </div>
 
   <div class="card hidden" id="editorCard">
@@ -297,7 +297,7 @@
       </div>
       <div class="pagenav">
         <button id="prevPageBtn"><i class="fa-solid fa-chevron-left"></i></button>
-        <span id="pageIndicator">Halaman 1 / 1</span>
+        <span id="pageIndicator">Page 1 / 1</span>
         <button id="nextPageBtn"><i class="fa-solid fa-chevron-right"></i></button>
       </div>
     </div>
@@ -305,20 +305,20 @@
     <div class="controlsrow">
       <label class="checkwrap">
         <input type="checkbox" id="headerToggle">
-        Baris pertama adalah header
+        First row is the header
       </label>
       <div class="ctrl-group">
-        <span class="ctrl-label">Sensitivitas kolom</span>
+        <span class="ctrl-label">Column sensitivity</span>
         <input type="range" id="gapSlider" min="2" max="60" value="10" step="1">
         <span class="rangeval" id="gapVal">10</span>
       </div>
-      <button class="btn btn-secondary btn-sm" id="reExtractBtn"><i class="fa-solid fa-arrows-rotate"></i> Ekstrak ulang</button>
+      <button class="btn btn-secondary btn-sm" id="reExtractBtn"><i class="fa-solid fa-arrows-rotate"></i> Re-extract</button>
     </div>
 
     <div class="toolbar" style="margin-bottom:12px;">
       <div style="display:flex; gap:8px;">
-        <button class="btn btn-secondary btn-sm" id="addRowBtn"><i class="fa-solid fa-plus"></i> Tambah baris</button>
-        <button class="btn btn-secondary btn-sm" id="resetBtn"><i class="fa-solid fa-rotate-left"></i> Ganti file</button>
+        <button class="btn btn-secondary btn-sm" id="addRowBtn"><i class="fa-solid fa-plus"></i> Add row</button>
+        <button class="btn btn-secondary btn-sm" id="resetBtn"><i class="fa-solid fa-rotate-left"></i> Change file</button>
       </div>
     </div>
 
@@ -333,10 +333,10 @@
       <div class="rowcount" id="rowCount"></div>
       <div style="display:flex; align-items:center; gap:14px;">
         <div class="seg" id="scopeSeg">
-          <button data-scope="current" class="active">Halaman ini</button>
-          <button data-scope="all">Semua halaman</button>
+          <button data-scope="current" class="active">This page</button>
+          <button data-scope="all">All pages</button>
         </div>
-        <span class="status ok hidden" id="statusMsg"><i class="fa-solid fa-circle-check"></i> Siap diunduh</span>
+        <span class="status ok hidden" id="statusMsg"><i class="fa-solid fa-circle-check"></i> Ready to download</span>
         <button class="btn btn-primary" id="processBtn"><i class="fa-solid fa-gear"></i> Process &amp; Download</button>
       </div>
     </div>
@@ -369,7 +369,7 @@ function makeEditableTable(getState, onChange){
     tbody.innerHTML = '';
     if (rows.length === 0){
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td colspan="${headers.length + 2}"><div class="empty"><i class="fa-regular fa-folder-open"></i>Tidak ada baris terdeteksi di halaman ini</div></td>`;
+      tr.innerHTML = `<td colspan="${headers.length + 2}"><div class="empty"><i class="fa-regular fa-folder-open"></i>No rows detected on this page</div></td>`;
       tbody.appendChild(tr);
     } else {
       rows.forEach((r, i) => tbody.appendChild(buildRow(r, i, headers.length)));
@@ -402,7 +402,7 @@ function makeEditableTable(getState, onChange){
 
     const delTd = document.createElement('td');
     delTd.className = 'del-cell';
-    delTd.innerHTML = '<button title="Hapus baris"><i class="fa-solid fa-trash"></i></button>';
+    delTd.innerHTML = '<button title="Delete row"><i class="fa-solid fa-trash"></i></button>';
     delTd.querySelector('button').addEventListener('click', () => {
       rows.splice(parseInt(tr.dataset.index), 1);
       render();
@@ -512,17 +512,17 @@ let fileBaseName = 'data';
 const editorTable = makeEditableTable(
   () => ({ headers: curHeaders, rows: curRows }),
   () => {
-    document.getElementById('rowCount').textContent = `${curRows.length} baris \u00b7 ${curHeaders.length} kolom (halaman ${curPage})`;
+    document.getElementById('rowCount').textContent = `${curRows.length} rows \u00b7 ${curHeaders.length} columns (page ${curPage})`;
   }
 );
 
 function applyHeaderToggle(maxCols, rawRows){
   const useHeader = document.getElementById('headerToggle').checked;
   if (useHeader && rawRows.length > 0){
-    curHeaders = rawRows[0].map((h, i) => h || `Kolom ${i + 1}`);
+    curHeaders = rawRows[0].map((h, i) => h || `Column ${i + 1}`);
     curRows = rawRows.slice(1);
   } else {
-    curHeaders = Array.from({ length: maxCols }, (_, i) => `Kolom ${i + 1}`);
+    curHeaders = Array.from({ length: maxCols }, (_, i) => `Column ${i + 1}`);
     curRows = rawRows;
   }
 }
@@ -535,7 +535,7 @@ async function extractCurrentPage(){
   const { maxCols, rows } = buildTableFromItems(pageItemsCache[curPage], gapThreshold);
   applyHeaderToggle(maxCols, rows);
   editorTable.render();
-  document.getElementById('pageIndicator').textContent = `Halaman ${curPage} / ${numPages}`;
+  document.getElementById('pageIndicator').textContent = `Page ${curPage} / ${numPages}`;
   document.getElementById('prevPageBtn').disabled = curPage <= 1;
   document.getElementById('nextPageBtn').disabled = curPage >= numPages;
   document.getElementById('statusMsg').classList.add('hidden');
@@ -613,22 +613,22 @@ document.getElementById('processBtn').addEventListener('click', async () => {
   if (scope === 'current'){
     const wsData = [curHeaders, ...curRows];
     const ws = XLSX.utils.aoa_to_sheet(wsData);
-    XLSX.utils.book_append_sheet(wb, ws, `Halaman ${curPage}`);
+    XLSX.utils.book_append_sheet(wb, ws, `Page ${curPage}`);
   } else {
     for (let p = 1; p <= numPages; p++){
       if (!pageItemsCache[p]) pageItemsCache[p] = await getPageItems(pdfDoc, p);
       const { maxCols, rows } = buildTableFromItems(pageItemsCache[p], gapThreshold);
       let headers, dataRows;
       if (useHeader && rows.length > 0){
-        headers = rows[0].map((h, i) => h || `Kolom ${i + 1}`);
+        headers = rows[0].map((h, i) => h || `Column ${i + 1}`);
         dataRows = rows.slice(1);
       } else {
-        headers = Array.from({ length: maxCols }, (_, i) => `Kolom ${i + 1}`);
+        headers = Array.from({ length: maxCols }, (_, i) => `Column ${i + 1}`);
         dataRows = rows;
       }
       const wsData = [headers, ...dataRows];
       const ws = XLSX.utils.aoa_to_sheet(wsData);
-      XLSX.utils.book_append_sheet(wb, ws, `Halaman ${p}`.substring(0, 31));
+      XLSX.utils.book_append_sheet(wb, ws, `Page ${p}`.substring(0, 31));
     }
   }
 

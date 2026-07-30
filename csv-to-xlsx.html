@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>CSV to XLSX Converter</title>
@@ -9,15 +9,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root{
-    --navy:#093C5D;
-    --blue:#3B7597;
-    --teal:#6FD1D7;
-    --mint:#5DF8D8;
-    --bg:#F4FAFA;
+    --navy:#224248;
+    --blue:#325E6A;
+    --teal:#44A1A4;
+    --mint:#FF9A00;
+    --bg:#F1F6F6;
     --card:#FFFFFF;
-    --border:#DCEAEA;
-    --text:#0E2A3A;
-    --muted:#5B7A88;
+    --border:#DCE8E7;
+    --text:#1A3236;
+    --muted:#5C7A7D;
   }
   *{box-sizing:border-box;}
   body{
@@ -74,10 +74,10 @@
     text-align:center;
     cursor:pointer;
     transition:.15s;
-    background:#F9FEFE;
+    background:#F5FAFA;
   }
   #dropzone:hover, #dropzone.drag{
-    background:#EBFBFA;
+    background:#E9F5F4;
     border-color:var(--blue);
   }
   #dropzone i{
@@ -131,7 +131,7 @@
     background:var(--navy);
     color:#fff;
   }
-  .btn-primary:hover{background:#0c4c76;}
+  .btn-primary:hover{background:#1A3438;}
   .btn-secondary{
     background:#fff;
     color:var(--navy);
@@ -174,7 +174,7 @@
   tbody tr{
     border-top:1px solid var(--border);
   }
-  tbody tr:nth-child(even){background:#F9FCFC;}
+  tbody tr:nth-child(even){background:#F7FAFA;}
   tbody tr.dragging{opacity:.4;}
   tbody tr.drop-target{border-top:2px solid var(--blue);}
   td{
@@ -209,7 +209,7 @@
     white-space:nowrap;
   }
   td .cell:focus{
-    background:#EAF7F6;
+    background:#E6F3F2;
     box-shadow:inset 0 0 0 1.5px var(--teal);
   }
 
@@ -250,16 +250,16 @@
   <header>
     <div class="icon"><i class="fa-solid fa-file-csv"></i></div>
     <div>
-      <h1>CSV ke XLSX Converter</h1>
-      <p>Upload CSV, edit datanya, lalu unduh sebagai file Excel (.xlsx)</p>
+      <h1>CSV to XLSX Converter</h1>
+      <p>Upload a CSV, edit the data, then download it as an Excel (.xlsx) file</p>
     </div>
   </header>
 
   <div class="card">
     <div id="dropzone">
       <i class="fa-solid fa-cloud-arrow-up"></i>
-      <div class="title">Klik atau seret file CSV ke sini</div>
-      <div class="sub">Mendukung file .csv</div>
+      <div class="title">Click or drag a CSV file here</div>
+      <div class="sub">Supports .csv files</div>
       <input type="file" id="fileInput" accept=".csv,text/csv">
     </div>
   </div>
@@ -272,7 +272,7 @@
         <span id="fileStats"></span>
       </div>
       <div style="display:flex; gap:8px;">
-        <button class="btn btn-secondary btn-sm" id="addRowBtn"><i class="fa-solid fa-plus"></i> Tambah baris</button>
+        <button class="btn btn-secondary btn-sm" id="addRowBtn"><i class="fa-solid fa-plus"></i> Add row</button>
         <button class="btn btn-secondary btn-sm" id="resetBtn"><i class="fa-solid fa-rotate-left"></i> Reset</button>
       </div>
     </div>
@@ -287,7 +287,7 @@
     <div class="footerbar">
       <div class="rowcount" id="rowCount"></div>
       <div style="display:flex; align-items:center; gap:14px;">
-        <span class="status ok" id="statusMsg" style="display:none;"><i class="fa-solid fa-circle-check"></i> Siap diunduh</span>
+        <span class="status ok" id="statusMsg" style="display:none;"><i class="fa-solid fa-circle-check"></i> Ready to download</span>
         <button class="btn btn-primary" id="processBtn"><i class="fa-solid fa-gear"></i> Process &amp; Download XLSX</button>
       </div>
     </div>
@@ -375,7 +375,7 @@ function renderTable(){
   tbody.innerHTML = '';
   if (rows.length === 0){
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td colspan="${headers.length + 2}"><div class="empty"><i class="fa-regular fa-folder-open"></i>Belum ada baris data</div></td>`;
+    tr.innerHTML = `<td colspan="${headers.length + 2}"><div class="empty"><i class="fa-regular fa-folder-open"></i>No rows yet</div></td>`;
     tbody.appendChild(tr);
   } else {
     rows.forEach((r, i) => tbody.appendChild(buildRow(r, i)));
@@ -408,7 +408,7 @@ function buildRow(r, i){
 
   const delTd = document.createElement('td');
   delTd.className = 'del-cell';
-  delTd.innerHTML = '<button title="Hapus baris"><i class="fa-solid fa-trash"></i></button>';
+  delTd.innerHTML = '<button title="Delete row"><i class="fa-solid fa-trash"></i></button>';
   delTd.querySelector('button').addEventListener('click', () => {
     rows.splice(parseInt(tr.dataset.index), 1);
     renderTable();
@@ -443,8 +443,8 @@ function buildRow(r, i){
 }
 
 function updateFooter(){
-  rowCountEl.textContent = `${rows.length} baris \u00b7 ${headers.length} kolom`;
-  fileStatsEl.textContent = `(${rows.length} baris, ${headers.length} kolom)`;
+  rowCountEl.textContent = `${rows.length} rows \u00b7 ${headers.length} columns`;
+  fileStatsEl.textContent = `(${rows.length} rows, ${headers.length} columns)`;
 }
 
 function escapeHtml(s){

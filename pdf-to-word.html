@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PDF to Word</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://unpkg.com/[email protected]/build/index.umd.js"></script>
+<style>
+  :root{
+    --navy:#224248;
+    --blue:#325E6A;
+    --teal:#44A1A4;
+    --mint:#FF9A00;
+    --bg:#F1F6F6;
+    --card:#FFFFFF;
+    --border:#DCE8E7;
+    --text:#1A3236;
+    --muted:#5C7A7D;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Raleway',sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+  }
+  .wrap{ max-width:1000px; margin:0 auto; padding:32px 20px 60px; }
+  header{ display:flex; align-items:center; gap:14px; margin-bottom:24px; }
+  header .icon{
+    width:48px;height:48px; background:var(--navy); border-radius:12px;
+    display:flex;align-items:center;justify-content:center; color:var(--mint);
+    font-size:20px; flex-shrink:0;
+  }
+  header h1{ font-size:22px; font-weight:700; margin:0; color:var(--navy); }
+  header p{ margin:2px 0 0; font-size:13.5px; color:var(--muted); }
+
+  .infobar{
+    display:flex; align-items:flex-start; gap:10px;
+    background:#E6F3F2; border:1px solid var(--border); border-radius:12px;
+    padding:12px 14px; font-size:13px; color:var(--navy); margin-bottom:18px;
+  }
+  .infobar i{color:var(--blue); margin-top:2px;}
+
+  .card{ background:var(--card); border:1px solid var(--border); border-radius:16px; padding:24px; margin-bottom:20px; }
+
+  .dropzone{
+    border:2px dashed var(--teal); border-radius:16px; padding:44px 20px; text-align:center;
+    cursor:pointer; transition:.2s ease; background:linear-gradient(180deg, #F5FAFA 0%, #F0F8F7 100%);
+  }
+  .dropzone:hover{ background:#E9F5F4; border-color:var(--blue); transform:translateY(-1px); }
+  .dropzone.drag{ background:#DEF0EE; border-color:var(--navy); border-style:solid; }
+  .dropzone .dz-icon{
+    width:60px; height:60px; margin:0 auto 14px; border-radius:50%; background:#DCEEEC;
+    display:flex; align-items:center; justify-content:center; transition:.2s ease;
+  }
+  .dropzone:hover .dz-icon{ background:var(--teal); }
+  .dropzone i{ font-size:24px; color:var(--blue); }
+  .dropzone:hover i{ color:var(--navy); }
+  .dropzone .title{ font-weight:600; font-size:15.5px; color:var(--navy); }
+  .dropzone .sub{ font-size:13px; color:var(--muted); margin-top:5px; }
+  .fileinput{ display:none; }
+
+  .filemeta{ display:flex; align-items:center; gap:10px; font-size:13.5px; color:var(--muted); margin-bottom:18px; }
+  .filemeta b{ color:var(--navy); }
+
+  .btn{
+    font-family:'Raleway',sans-serif; border:none; border-radius:10px; padding:10px 16px;
+    font-size:14px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:8px; transition:.15s;
+  }
+  .btn-primary{ background:var(--navy); color:#fff; }
+  .btn-primary:hover{ background:#1A3438; }
+  .btn-secondary{ background:#fff; color:var(--navy); border:1px solid var(--border); }
+  .btn-secondary:hover{ border-color:var(--blue); color:var(--blue); }
+  .btn-sm{ padding:6px 10px; font-size:12.5px; border-radius:8px; }
+  .btn:disabled{ opacity:.45; cursor:not-allowed; }
+
+  .loading{ text-align:center; padding:30px; color:var(--muted); font-size:13.5px; }
+
+  .pagepanel{ border:1px solid var(--border); border-radius:12px; margin-bottom:12px; overflow:hidden; }
+  .pagepanel-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 14px; background:var(--bg); font-size:13.5px; font-weight:700; color:var(--navy);
+  }
+  .pagepanel-head .wc{ font-weight:500; color:var(--muted); font-size:12px; }
+  .pagepanel textarea{
+    width:100%; min-height:120px; border:none; padding:14px; font-family:'Raleway',sans-serif;
+    font-size:13.5px; line-height:1.6; resize:vertical; outline:none;
+  }
+  .pagepanel textarea:focus{ background:#F5FAFA; }
+
+  .footerbar{ display:flex; justify-content:space-between; align-items:center; margin-top:16px; flex-wrap:wrap; gap:10px; }
+  .status{ font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px; }
+  .status.ok{ color:#1f8b6f; }
+
+  .hidden{ display:none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="icon"><i class="fa-solid fa-file-word"></i></div>
+    <div>
+      <h1>PDF to Word</h1>
+      <p>Turn text-based PDFs into Word documents, no OCR needed &mdash; fast and clean</p>
+    </div>
+  </header>
+
+  <div class="infobar">
+    <i class="fa-solid fa-circle-info"></i>
+    <span>Only works with PDFs whose text can be selected/copied directly (not scans/photos). Scanned PDFs aren't supported by this tool.</span>
+  </div>
+
+  <div class="card" id="uploadCard">
+    <div id="dropzone" class="dropzone">
+      <div class="dz-icon"><i class="fa-solid fa-file-pdf"></i></div>
+      <div class="title">Click or drag a .pdf file here</div>
+      <div class="sub">Supports text-based <code>.pdf</code> files</div>
+      <input type="file" class="fileinput" id="fileInput" accept=".pdf,application/pdf">
+    </div>
+  </div>
+
+  <div class="card hidden" id="loadingCard">
+    <div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Extracting text from the PDF...</div>
+  </div>
+
+  <div class="card hidden" id="resultCard">
+    <div class="filemeta">
+      <i class="fa-solid fa-file-lines"></i>
+      <span><b id="fileName">-</b></span>
+      <span id="pageInfo"></span>
+    </div>
+
+    <div id="pagesContainer"></div>
+
+    <div class="footerbar">
+      <button class="btn btn-secondary btn-sm" id="restartBtn"><i class="fa-solid fa-rotate-left"></i> Change file</button>
+      <div style="display:flex; align-items:center; gap:14px;">
+        <span class="status ok hidden" id="statusMsg"><i class="fa-solid fa-circle-check"></i> Ready to download</span>
+        <button class="btn btn-primary" id="processBtn"><i class="fa-solid fa-download"></i> Process &amp; Download Word (.docx)</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+const uploadCard = document.getElementById('uploadCard');
+const loadingCard = document.getElementById('loadingCard');
+const resultCard = document.getElementById('resultCard');
+
+let pdfDoc = null;
+let numPages = 0;
+let fileBaseName = 'document';
+let pageTexts = [];
+
+dropzone.addEventListener('click', () => fileInput.click());
+dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag'); });
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag'));
+dropzone.addEventListener('drop', e => {
+  e.preventDefault(); dropzone.classList.remove('drag');
+  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e => { if (e.target.files.length) handleFile(e.target.files[0]); });
+
+/* group text items into lines using Y-position clustering, similar to the table extractor,
+   but here we just want reading-order paragraphs, not columns */
+function itemsToLines(items){
+  if (items.length === 0) return [];
+  const avgHeight = items.reduce((s, it) => s + (it.height || 10), 0) / items.length;
+  const tolerance = Math.max(2, avgHeight * 0.5);
+  const sorted = [...items].sort((a, b) => b.y - a.y || a.x - b.x);
+  const lines = [];
+  let current = null;
+  let currentY = null;
+  sorted.forEach(it => {
+    if (current === null || Math.abs(it.y - currentY) > tolerance){
+      current = [];
+      lines.push(current);
+      currentY = it.y;
+    }
+    current.push(it);
+  });
+  lines.forEach(l => l.sort((a, b) => a.x - b.x));
+  return lines.map(l => l.map(it => it.str).join('').replace(/\s+/g, ' ').trim()).filter(t => t.length > 0);
+}
+
+async function extractPageText(pageNum){
+  const page = await pdfDoc.getPage(pageNum);
+  const textContent = await page.getTextContent();
+  const items = textContent.items
+    .filter(it => it.str && it.str.trim().length > 0)
+    .map(it => ({ str: it.str, x: it.transform[4], y: it.transform[5], height: it.height || Math.abs(it.transform[3]) || 10 }));
+  const lines = itemsToLines(items);
+  return lines.join('\n');
+}
+
+async function handleFile(file){
+  fileBaseName = file.name.replace(/\.pdf$/i, '') || 'document';
+  uploadCard.classList.add('hidden');
+  loadingCard.classList.remove('hidden');
+
+  const buf = await file.arrayBuffer();
+  pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
+  numPages = pdfDoc.numPages;
+
+  pageTexts = [];
+  for (let p = 1; p <= numPages; p++){
+    pageTexts.push(await extractPageText(p));
+  }
+
+  document.getElementById('fileName').textContent = file.name;
+  document.getElementById('pageInfo').textContent = `(${numPages} pages)`;
+  buildResultPanels();
+
+  loadingCard.classList.add('hidden');
+  resultCard.classList.remove('hidden');
+}
+
+function buildResultPanels(){
+  const container = document.getElementById('pagesContainer');
+  container.innerHTML = '';
+  pageTexts.forEach((text, i) => {
+    const panel = document.createElement('div');
+    panel.className = 'pagepanel';
+    const words = text.split(/\s+/).filter(Boolean).length;
+    panel.innerHTML = `
+      <div class="pagepanel-head">
+        <span>Page ${i + 1}</span>
+        <span class="wc">${words} words</span>
+      </div>
+      <textarea data-page="${i}"></textarea>
+    `;
+    const ta = panel.querySelector('textarea');
+    ta.value = text;
+    ta.addEventListener('input', () => { pageTexts[i] = ta.value; });
+    container.appendChild(panel);
+  });
+}
+
+document.getElementById('restartBtn').addEventListener('click', () => {
+  resultCard.classList.add('hidden');
+  uploadCard.classList.remove('hidden');
+  fileInput.value = '';
+  pdfDoc = null;
+  pageTexts = [];
+});
+
+document.getElementById('processBtn').addEventListener('click', async () => {
+  const { Document, Packer, Paragraph, TextRun } = docx;
+
+  const children = [];
+  pageTexts.forEach((text, pageIdx) => {
+    const lines = text.split('\n');
+    lines.forEach((line, lineIdx) => {
+      const isFirstLineOfPage = pageIdx > 0 && lineIdx === 0;
+      children.push(new Paragraph({
+        pageBreakBefore: isFirstLineOfPage,
+        children: [new TextRun(line)]
+      }));
+    });
+    if (lines.length === 0 && pageIdx > 0){
+      children.push(new Paragraph({ pageBreakBefore: true, children: [new TextRun('')] }));
+    }
+  });
+
+  const doc = new Document({ sections: [{ children }] });
+  const blob = await Packer.toBlob(doc);
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `${fileBaseName}.docx`;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+
+  document.getElementById('statusMsg').classList.remove('hidden');
+});
+</script>
+</body>
+</html>
